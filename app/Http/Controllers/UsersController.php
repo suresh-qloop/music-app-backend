@@ -1,10 +1,14 @@
 <?php 
-    namespace App\Http\Controllers;
+
+namespace App\Http\Controllers;
     use App\Http\Controllers\Controller;
     use App\Models\Users;
     use Illuminate\Http\Request;
+    use Illuminate\Http\Response;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Hash;
+    use Illuminate\Support\Facades\Validator;
+
 
     class UsersController extends Controller
     {
@@ -48,6 +52,48 @@
             $pwd = Hash::make($request->pwd);
             $isLogin = Users::where('email', $email)->get();
             return $isLogin;
+        }
+
+        public function resetPassword(Request $request) {
+
+            $validator = Validator::make($request->all(), [
+                'author' => 'required',
+                'old_password' => 'required',
+                'new_password' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                  'errors' => $validator->errors(),
+                  'status' => Response::HTTP_BAD_REQUEST,
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+
+            $user_id = $request->author;
+            $old_password = $request->old_password;
+            $new_password = $request->new_password;
+
+            $user_password=Users::select('pwd')->where('id',$user_id)->first();
+            $password=$user_password['pwd'];
+
+            if (!Hash::check($old_password, $password)) {
+                 return response()->json(['error' => 'Current password you entered is Incorrect'],400);
+            }
+            else{
+                $user = Users::find($user_id);
+                $user->pwd = Hash::make($new_password);
+                if($user->Update()){
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Password Changed Successfully.'
+                    ], 200);
+                }
+                else{
+                    return response()->json(['error' => 'Error in Updation!'],400);
+                }
+             }
+           
         }
     }
 ?>

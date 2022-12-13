@@ -26,5 +26,7 @@ class VerifyCsrfToken extends Middleware
         '/sign-up',
         '/sign-in',
         '/update-song',
+        '/reset-password',
+        '/comment-lyrics'
     ];
 }

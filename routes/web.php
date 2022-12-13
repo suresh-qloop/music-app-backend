@@ -34,3 +34,5 @@ Route::post('/users', [UsersController::class, 'allUsers']);
 Route::post('/lyrics-lines', [LyricsController::class, 'allLyricsLines']);
 Route::post('/sign-up', [UsersController::class, 'store']);
 Route::post('/sign-in', [UsersController::class, 'checkLogin']);
+Route::post('/reset-password', [UsersController::class, 'resetPassword']);
+Route::post('/comment-lyrics', [LyricsController::class, 'addExplanation']);
