@@ -30,5 +30,6 @@ class VerifyCsrfToken extends Middleware
         '/add-explanation',
         '/search-result',
         '/browse-by-letter',
+        '/edit-song',
     ];
 }

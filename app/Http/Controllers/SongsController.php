@@ -89,11 +89,17 @@
             $author_points = DB::table('users')->where('id', $author)->update(['total_pts' => $request->totalPoints*1 + 10]);
             
             if($insertNewSong){
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Song Added Successfully.'
-                ], 200);
+                return 1;
             }
+        }
+
+        public function editSong(Request $request){
+
+            $song_id= $request->id;
+            $song_detail = Songs::where('id', $song_id)->get();
+            $lyrics_lines = Lyrics::where('song_id', $song_id)->get();
+
+            return  compact('song_detail', 'lyrics_lines');
         }
 
         public function updateSong(Request $request) { 
@@ -155,10 +161,7 @@
             }
 
             if($updateSong){
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Song Updated Successfully.'
-                ], 200);
+               return 1;
             }
         }
 

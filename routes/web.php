@@ -24,6 +24,7 @@ Route::get('/', function () {
 Route::post('/songs', [SongsController::class, 'allSongs']);
 Route::post('/distinct-songs', [SongsController::class, 'distinctSongs']);
 Route::post('/add-new-song', [SongsController::class, 'addNewSong']);
+Route::post('/edit-song', [SongsController::class, 'editSong']);
 Route::post('/update-song', [SongsController::class, 'updateSong']);
 Route::post('/videos', [SongsController::class, 'allVideos']);
 Route::post('/randVideos', [SongsController::class, 'randomVideos']);
