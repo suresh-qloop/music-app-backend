@@ -1,6 +1,7 @@
 <?php 
     namespace App\Http\Controllers;
     use App\Http\Controllers\Controller;
+    use App\Models\Lyrics;
     use App\Models\Songs;
     use App\Models\Users;
     use Illuminate\Http\Request;
@@ -46,7 +47,7 @@
         }
 
         public function addNewSong(Request $request) {
-            $insertNewSong = Songs::insert([
+            $insertNewSong = Songs::insertGetId([
                 'title' => $request->title,
                 'artist' => $request->artist,
                 'feat_artist' => $request->feat_artist,
@@ -69,13 +70,40 @@
                 'artist_id' => 0,
                 'daily_views' => 0
             ]);
+            if($insertNewSong && $request->lyrics){
+
+                //$lines= explode("\n",$request->lyrics);
+                
+                foreach($request->lyrics as $line){
+                    $line=trim($line['line_txt']);
+                    // if (str_contains($line, '[') && str_contains($line, ']')) { 
+                    //     $line=trim(str_replace('[', '', $line));
+                    //     $line=trim(str_replace(']', '', $line));
+                    // }                    
+
+                    if($line !='' && $line!=null){
+                        $lyrics = new Lyrics;
+                        $lyrics->song_id = $insertNewSong;
+                        $lyrics->line_txt = $line;
+                        $lyrics->comment = 'false';
+                        $lyrics->save();
+                    }
+                }
+            }
+
             $author = $request->author;
             $author_points = DB::table('users')->where('id', $author)->update(['total_pts' => $request->totalPoints*1 + 10]);
             
-            return $insertNewSong;
+            if($insertNewSong){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Song Added Successfully.'
+                ], 200);
+            }
         }
 
-        public function updateSong(Request $request) {
+        public function updateSong(Request $request) { 
+
             $updateSong = DB::table('songs')->where('id', $request->id)->update([
                 'title' => $request->title,
                 'artist' => $request->artist,
@@ -100,7 +128,71 @@
                 'daily_views' => 0
             ]);
 
-            return $updateSong;
+            if($request->lyrics_to_add){
+                foreach($request->lyrics_to_add as $line){
+                    $line=trim($line['line_txt']);                
+
+                    if($line !='' && $line!=null){
+                        $lyrics = new Lyrics;
+                        $lyrics->song_id = $request->id;
+                        $lyrics->line_txt = $line;
+                        $lyrics->comment = 'false';
+                        $lyrics->save();
+                    }
+                    $updateSong = true;
+                }
+            }
+
+            if($request->lyrics_to_edit){
+                foreach($request->lyrics_to_edit as $record){
+
+                    $lyrics_edit= DB::table('lyrics_lines')->where('id', $record['id'])->update([
+                        'line_txt' => $record['line_txt']
+                    ]);
+                    $updateSong = true;
+                }
+            }
+
+            if($request->lyrics_to_remove){
+                //echo "<pre>"; print_r($request->lyrics_to_remove);die;
+                foreach($request->lyrics_to_remove as $record){
+
+                    DB::table('lyrics_lines')->where('id', $record['id'])->delete();
+                    $updateSong = true;
+                }
+            }
+
+            if($updateSong){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Song Updated Successfully.'
+                ], 200);
+            }
         }
-    }
+
+        public function search(Request $request) {
+
+            $search = $request->query('search_query');
+
+            $result = DB::table('songs')
+            ->where(DB::raw('lower(title)'), 'LIKE', "%".strtolower($search)."%")
+            ->orWhere(DB::raw('lower(artist)'), 'LIKE', "%".strtolower($search)."%")
+            ->orderBy('title')
+            ->get();
+            return $result;
+        }
+
+        public function browsByLetter(Request $request) {
+
+            $search = $request->query('letter');
+
+            $result = DB::table('songs')
+            ->select('artist')
+            ->where('artist', 'LIKE', "{$search}%")
+            ->orderBy('artist')
+            ->distinct()
+            ->get();
+            return $result;
+        }
+    }   
 ?>

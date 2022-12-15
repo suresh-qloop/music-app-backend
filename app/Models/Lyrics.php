@@ -12,4 +12,6 @@ class Lyrics extends Model
      * @var string
      */
     protected $table = 'lyrics_lines';
+    public $timestamps = false;
+
 }
