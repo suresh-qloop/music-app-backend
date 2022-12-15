@@ -71,15 +71,9 @@
                 'daily_views' => 0
             ]);
             if($insertNewSong && $request->lyrics){
-
-                //$lines= explode("\n",$request->lyrics);
                 
                 foreach($request->lyrics as $line){
                     $line=trim($line['line_txt']);
-                    // if (str_contains($line, '[') && str_contains($line, ']')) { 
-                    //     $line=trim(str_replace('[', '', $line));
-                    //     $line=trim(str_replace(']', '', $line));
-                    // }                    
 
                     if($line !='' && $line!=null){
                         $lyrics = new Lyrics;
@@ -154,9 +148,7 @@
             }
 
             if($request->lyrics_to_remove){
-                //echo "<pre>"; print_r($request->lyrics_to_remove);die;
                 foreach($request->lyrics_to_remove as $record){
-
                     DB::table('lyrics_lines')->where('id', $record['id'])->delete();
                     $updateSong = true;
                 }
