@@ -38,5 +38,6 @@ Route::post('/sign-in', [UsersController::class, 'checkLogin']);
 Route::post('/reset-password', [UsersController::class, 'resetPassword']);
 Route::post('/add-explanation', [LyricsController::class, 'addExplanation']);
 
+Route::post('/contact', [UsersController::class, 'contactUs']);
 Route::get('/search-result', [SongsController::class, 'search']);
 Route::get('/browse-by-letter', [SongsController::class, 'browsByLetter']);

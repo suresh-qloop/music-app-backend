@@ -1,6 +1,8 @@
 <?php 
 
 namespace App\Http\Controllers;
+
+    use App\Jobs\SendContactMailJob;
     use App\Http\Controllers\Controller;
     use App\Models\Users;
     use Illuminate\Http\Request;
@@ -49,9 +51,21 @@ namespace App\Http\Controllers;
 
         public function checkLogin(Request $request) {
             $email = $request->email;
-            $pwd = Hash::make($request->pwd);
-            $isLogin = Users::where('email', $email)->get();
-            return $isLogin;
+            $pwd = $request->pwd;
+            $isLogin= false;
+            $user = Users::where('email', $email)->get();
+            if($user)
+            {
+                $password= Users::select('pwd')->where('email', $email)->first();
+                $password=$password['pwd'];
+
+                if(Hash::check($pwd, $password)){
+                    $isLogin= true;
+                }
+            }
+            if($isLogin){
+                return $user;
+            }
         }
 
         public function resetPassword(Request $request) {
@@ -93,7 +107,23 @@ namespace App\Http\Controllers;
                     return response()->json(['error' => 'Error in Updation!'],400);
                 }
              }
-           
+        }
+
+        public function contactUs(Request $request){
+
+            $name= $request->name;
+            $email= $request->email;
+            $subject= ($request->subject)? $request->subject : '';
+            $message= $request->message;
+
+            $send_mail=dispatch(new SendContactMailJob($name, $email, $subject, $message))->delay(now()->addSeconds(5));
+            
+            if($send_mail){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your message has been send. Someone will contact you in short time!'
+                ], 200);
+            }
         }
     }
 ?>

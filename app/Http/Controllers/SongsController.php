@@ -146,10 +146,12 @@
             if($request->lyrics_to_edit){
                 foreach($request->lyrics_to_edit as $record){
 
-                    $lyrics_edit= DB::table('lyrics_lines')->where('id', $record['id'])->update([
-                        'line_txt' => $record['line_txt']
-                    ]);
-                    $updateSong = true;
+                    if($record['line_txt']!='' && $record['line_txt']!=null){
+                        $lyrics_edit= DB::table('lyrics_lines')->where('id', $record['id'])->update([
+                            'line_txt' => $record['line_txt']
+                        ]);
+                        $updateSong = true;
+                    }
                 }
             }
 
